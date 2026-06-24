@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "azure-vote-chart.fullname" . }}
+  labels:
+    {{- include "azure-vote-chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "azure-vote-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "azure-vote-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: azure-vote-front
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          env:
+            - name: REDIS
+              value: "{{ .Values.redis.host }}"
+            - name: REDIS_PORT
+              value: "{{ .Values.redis.port }}"
+            - name: VOTE1VALUE
+              value: "{{ .Values.vote.option1 }}"
+            - name: VOTE2VALUE
+              value: "{{ .Values.vote.option2 }}"
+            - name: TITLE
+              value: "{{ .Values.vote.title }}"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
